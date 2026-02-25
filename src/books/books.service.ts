@@ -22,57 +22,79 @@ export class BooksService {
     data.availableQuantity = data.totalQuantity;
 
     const book = this.bookRepo.create(data);
-    return await this.bookRepo.save(book);
-  }
+    // return await this.bookRepo.save(book);
 
-  async findAll() {
-    return await this.bookRepo.find();
-  }
+    try {
+      const savedBook = await this.bookRepo.save (book);
+      return {message : 'Book created successfully', book: savedBook};
+   }catch (error) {
+      throw new BadRequestException('book already exists');
+     }
 
-  async findOne(id: number) {
-    const book = await this.bookRepo.findOne({ where: { id } });
+  }   
+  
 
-    if (!book) {
+  async findAll(page: number, limit: number) {
+    const [data ,total] = await this.bookRepo.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    if (!data || data.length === 0) {
       throw new NotFoundException('Book not found');
     }
 
-    return book;
+    return {
+      data,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 
-  async update(id: number, data: Partial<Book>) {
-    await this.findOne(id);
+  async update (id:number , data :Partial<Book>) {
+    const book = await this.bookRepo.findOne({ where: { id } });
+    if(!book) {
+      throw new NotFoundException('Book not found');
+    }
 
     await this.bookRepo.update(id, data);
-    return this.findOne(id);
+    return this.bookRepo.findOne({ where: { id } });
+  } 
+
+  async delete(id:number) {
+    const book = await this.bookRepo.findOne({ where : { id } });
+    if(!book) {
+      throw new NotFoundException('Book not found');
   }
 
-  async delete(id: number) {
-    await this.findOne(id);
     await this.bookRepo.delete(id);
+    return {message : `Book with id ${id} has been deleted`};
+  }   
 
-    return { message: 'Book deleted successfully' };
-  }
-
-  async decreaseQuantity(id: number) {
-    const book = await this.findOne(id);
-
-    if (book.availableQuantity <= 0) {
+  // Decrease Quantity
+  async decreaseQuantity(id:number){
+    const book = await this.bookRepo.findOne({where : { id } });
+    if(!book) {
+      throw new NotFoundException('Book not found');
+    }   
+    if(book.availableQuantity <= 0) {
       throw new BadRequestException('Book not available');
     }
-
     book.availableQuantity -= 1;
-    return this.bookRepo.save(book);
+    return this.bookRepo.save(book);    
   }
-
-  async increaseQuantity(id: number) {
-    const book = await this.findOne(id);
-
-    if (book.availableQuantity >= book.totalQuantity) {
+  
+  // Increase Quantity
+  async increaseQuantity(id:number){
+    const book = await this.bookRepo.findOne({where : { id } });
+    if(!book) {
+      throw new NotFoundException('Book not found');
+    }   
+    if(book.availableQuantity >= book.totalQuantity) {
       throw new BadRequestException('Book quantity already full');
     }
-
     book.availableQuantity += 1;
-    return this.bookRepo.save(book);
+    return this.bookRepo.save(book);    
   }
 }
-

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param , Query} from '@nestjs/common';
 import { BorrowService } from './borrow.service';
 
 @Controller('borrow')
@@ -15,8 +15,12 @@ export class BorrowController {
     return this.borrowService.returnBook(+id);
   }
 
+  //pagination
   @Get()
-  findAll() {
-    return this.borrowService.findAll();
+  findAll(
+    @Query(`page`) page = 1,
+    @Query(`limit`) limit = 10,
+  ) {
+    return this.borrowService.findAll(+page,+limit);
   }
 }

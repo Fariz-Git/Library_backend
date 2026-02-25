@@ -20,39 +20,51 @@ export class StudentsService {
     }
 
     const student = this.studentRepo.create(data);
-
+  
     try {
-      return await this.studentRepo.save(student);
+      const savedStudent = await this.studentRepo.save(student);
+      return {message : 'Student created successfully', student: savedStudent};
+
     } catch (error) {
       throw new BadRequestException('Email already exists');
     }
   }
 
-  async findAll() {
-    return await this.studentRepo.find();
+  async findAll(page: number, limit: number) {
+    const [data, total] = await this.studentRepo.findAndCount({ 
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+    
+    if (!data || data.length === 0) {
+      throw new NotFoundException('Student not found');
+    }
+
+    return {
+      data,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 
-  async findOne(id: number) {
-    const student = await this.studentRepo.findOne({ where: { id } });
 
+async update (id: number, data: Partial<Student>) {
+  const student = await this.studentRepo.findOne({ where: { id } });
     if (!student) {
       throw new NotFoundException('Student not found');
     }
 
-    return student;
+    await this.studentRepo.update(id,data);
+    return this.studentRepo.findOne({ where: { id } }); 
   }
 
-  async update(id: number, data: Partial<Student>) {
-    const student = await this.findOne(id);
-
-    await this.studentRepo.update(id, data);
-    return this.findOne(id);
-  }
-
-  async delete(id: number) {
-    const student = await this.findOne(id);
+  async delete (id:number) {
+    const student = await this.studentRepo.findOne({ where: { id } });  
+    if (!student) {
+      throw new NotFoundException('Student not found');
+    } 
     await this.studentRepo.delete(id);
-
-    return { message: 'Student deleted successfully' };
-  }
+    return {message :  `Student with id ${id} has been deleted`};
+}
 }

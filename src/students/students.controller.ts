@@ -7,6 +7,7 @@ import {
   Patch,
   Delete,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { StudentsService } from './students.service';
 
@@ -19,14 +20,13 @@ export class StudentsController {
     return this.studentsService.create(body);
   }
 
+  //pagination 
   @Get()
-  findAll() {
-    return this.studentsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.studentsService.findOne(id);
+  findAll(
+    @Query(`page`) page = 1,
+    @Query(`limit`) limit = 10,
+  ) {
+    return this.studentsService.findAll(+page, +limit);
   }
 
   @Patch(':id')

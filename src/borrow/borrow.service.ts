@@ -25,26 +25,24 @@ export class BorrowService {
     private booksService: BooksService,
   ) {}
 
+  // Issue Book
   async issueBook(studentId: number, bookId: number) {
     const student = await this.studentRepo.findOne({
       where: { id: studentId },
     });
 
-    if (!student) {
+    if (!student)
       throw new NotFoundException('Student not found');
-    }
 
     const book = await this.bookRepo.findOne({
       where: { id: bookId },
     });
 
-    if (!book) {
+    if (!book)
       throw new NotFoundException('Book not found');
-    }
 
-    if (book.availableQuantity <= 0) {
+    if (book.availableQuantity <= 0)
       throw new BadRequestException('Book not available');
-    }
 
     await this.booksService.decreaseQuantity(bookId);
 
@@ -54,33 +52,48 @@ export class BorrowService {
       returned: false,
     });
 
-    return await this.borrowRepo.save(borrow);
+    return this.borrowRepo.save(borrow);
   }
 
+  // Return Book
   async returnBook(borrowId: number) {
     const borrow = await this.borrowRepo.findOne({
       where: { id: borrowId },
       relations: ['book'],
     });
 
-    if (!borrow) {
+    if (!borrow)
       throw new NotFoundException('Borrow record not found');
-    }
 
-    if (borrow.returned) {
-      throw new BadRequestException('Book already returned');
-    }
+    if (borrow.returned)
+      throw new BadRequestException(
+        'Book already returned',
+      );
 
     borrow.returned = true;
 
-    await this.booksService.increaseQuantity(borrow.book.id);
+    await this.booksService.increaseQuantity(
+      borrow.book.id,
+    );
 
-    return await this.borrowRepo.save(borrow);
+    return this.borrowRepo.save(borrow);
   }
 
-  async findAll() {
-    return await this.borrowRepo.find({
-      relations: ['student', 'book'],
-    });
+  // Pagination
+  async findAll(page: number, limit: number) {
+    const [data, total] =
+      await this.borrowRepo.findAndCount({
+        relations: ['student', 'book'],
+        skip: (page - 1) * limit,
+        take: limit,
+        order: { id: 'DESC' },
+      });
+
+    return {
+      data,
+      total,
+      page,
+      lastPage: Math.ceil(total / limit),
+    };
   }
 }
