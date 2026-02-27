@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import {Injectable, NotFoundException ,BadRequestException,} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository ,Like } from 'typeorm';
 import { Borrow } from './borrow.entity';
@@ -81,24 +77,24 @@ export class BorrowService {
 
   // Pagination
 async findAll(page: number, limit: number, search: string) {
-  const query = this.borrowRepo
-    .createQueryBuilder('borrow')
-    .leftJoinAndSelect('borrow.student', 'student')
-    .leftJoinAndSelect('borrow.book', 'book');
+  const whereCondition = search && search.trim() !== ''
+    ? [
+        { 
+          student: { name: Like(`%${search.toLowerCase()}%`) } 
+        },
+        { 
+          book: { title: Like(`%${search.toLowerCase()}%`) } 
+        },
+      ]
+    : {};
 
-  if (search && search.trim() !== '') {
-    query.where(
-      'LOWER(student.name) LIKE :search OR LOWER(book.title) LIKE :search',
-      { search: `%${search}%`.toLowerCase() },
-    );
-  }
-
-  query
-    .skip((page - 1) * limit)
-    .take(limit)
-    .orderBy('borrow.id', 'DESC');
-
-  const [data, total] = await query.getManyAndCount();
+  const [data, total] = await this.borrowRepo.findAndCount({
+    where: whereCondition,
+    relations: ['student', 'book'], // equivalent to leftJoinAndSelect
+    skip: (page - 1) * limit,
+    take: limit,
+    order: { id: 'ASC' },
+  });
 
   return {
     data,

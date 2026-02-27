@@ -1,10 +1,5 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
-  Column,
-} from 'typeorm';
+import { Entity,PrimaryGeneratedColumn, ManyToOne,JoinColumn,
+  Column} from 'typeorm';
 import { Student } from '../students/student.entity';
 import { Book } from '../books/book.entity';
 

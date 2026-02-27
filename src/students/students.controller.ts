@@ -1,14 +1,5 @@
-import {
-  Controller,
-  Post,
-  Get,
-  Param,
-  Body,
-  Patch,
-  Delete,
-  ParseIntPipe,
-  Query,
-} from '@nestjs/common';
+import {Controller, Post, Get, Param, Body,Patch,
+   Delete, ParseIntPipe,Query,} from '@nestjs/common';
 import { StudentsService } from './students.service';
 
 @Controller('students')

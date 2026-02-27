@@ -15,7 +15,6 @@ export class BorrowController {
     return this.borrowService.returnBook(+id);
   }
 
-  //pagination
   @Get()
   findAll(
     @Query(`page`) page = 1,

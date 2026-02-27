@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import {Injectable,NotFoundException,BadRequestException} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository , Like} from 'typeorm';
 import { Student } from './student.entity';
@@ -33,7 +29,7 @@ export class StudentsService {
   async findAll(page: number, limit: number ,search : string) {
       
     const whereCondition = search
-    ? [
+    ? [ 
         { name: Like(`%${search}%`) },
         { email: Like(`%${search}%`) },
         { department: Like(`%${search}%`) },
