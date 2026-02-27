@@ -14,6 +14,6 @@ export class Book {
   @Column()
   totalQuantity: number;
 
-  @Column()
+  @Column({default : 0})
   availableQuantity: number;
 }

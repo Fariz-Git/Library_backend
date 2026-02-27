@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  Search,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository ,Like } from 'typeorm';
@@ -90,7 +89,7 @@ async findAll(page: number, limit: number, search: string) {
   if (search && search.trim() !== '') {
     query.where(
       'LOWER(student.name) LIKE :search OR LOWER(book.title) LIKE :search',
-      { search: `%${search.toLowerCase()}%` },
+      { search: `%${search}%`.toLowerCase() },
     );
   }
 
