@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository , Like} from 'typeorm';
 import { Student } from './student.entity';
 
 @Injectable()
@@ -30,10 +30,21 @@ export class StudentsService {
     }
   }
 
-  async findAll(page: number, limit: number) {
+  async findAll(page: number, limit: number ,search : string) {
+      
+    const whereCondition = search
+    ? [
+        { name: Like(`%${search}%`) },
+        { email: Like(`%${search}%`) },
+        { department: Like(`%${search}%`) },
+      ]
+    : {};
+
     const [data, total] = await this.studentRepo.findAndCount({ 
+      where :whereCondition ,
       skip: (page - 1) * limit,
       take: limit,
+      order : { id :  `ASC`},
     });
     
     if (!data || data.length === 0) {

@@ -21,13 +21,18 @@ export class StudentsController {
   }
 
   //pagination 
-  @Get()
-  findAll(
-    @Query(`page`) page = 1,
-    @Query(`limit`) limit = 10,
-  ) {
-    return this.studentsService.findAll(+page, +limit);
-  }
+@Get()
+findAll(
+  @Query('page') page = 1,
+  @Query('limit') limit = 10,
+  @Query('search') search = '',
+) {
+  return this.studentsService.findAll(
+    Number(page),
+    Number(limit),
+    search,
+  );
+}
 
   @Patch(':id')
   update(

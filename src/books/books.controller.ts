@@ -1,34 +1,49 @@
-import { Controller, Post, Get, Param, Body,Delete, Patch, Query,ParseIntPipe } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { BooksService } from './books.service';
 
 @Controller('books')
 export class BooksController {
-  constructor(private readonly booksService: BooksService) {}
+  constructor(
+    private readonly booksService: BooksService,
+  ) {}
 
   @Post()
-  create(@Body() body: any) {
+  create(@Body() body) {
     return this.booksService.create(body);
   }
 
-  //pagination
   @Get()
   findAll(
-    @Query(`page`) page = 1,
-    @Query(`limit`) limit = 10,
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('search') search = '',
   ) {
-    return this.booksService.findAll(+page,+limit);
+    return this.booksService.findAll(
+      Number(page),
+      Number(limit),
+      search,
+    );
   }
 
   @Patch(':id')
   update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: any,
+    @Param('id') id: number,
+    @Body() body,
   ) {
     return this.booksService.update(id, body);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id') id: number) {
     return this.booksService.delete(id);
   }
 }

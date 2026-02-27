@@ -2,9 +2,10 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Search,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository ,Like } from 'typeorm';
 import { Borrow } from './borrow.entity';
 import { Student } from '../students/student.entity';
 import { Book } from '../books/book.entity';
@@ -80,20 +81,31 @@ export class BorrowService {
   }
 
   // Pagination
-  async findAll(page: number, limit: number) {
-    const [data, total] =
-      await this.borrowRepo.findAndCount({
-        relations: ['student', 'book'],
-        skip: (page - 1) * limit,
-        take: limit,
-        order: { id: 'DESC' },
-      });
+async findAll(page: number, limit: number, search: string) {
+  const query = this.borrowRepo
+    .createQueryBuilder('borrow')
+    .leftJoinAndSelect('borrow.student', 'student')
+    .leftJoinAndSelect('borrow.book', 'book');
 
-    return {
-      data,
-      total,
-      page,
-      lastPage: Math.ceil(total / limit),
-    };
+  if (search && search.trim() !== '') {
+    query.where(
+      'LOWER(student.name) LIKE :search OR LOWER(book.title) LIKE :search',
+      { search: `%${search.toLowerCase()}%` },
+    );
   }
+
+  query
+    .skip((page - 1) * limit)
+    .take(limit)
+    .orderBy('borrow.id', 'DESC');
+
+  const [data, total] = await query.getManyAndCount();
+
+  return {
+    data,
+    total,
+    page,
+    lastPage: Math.ceil(total / limit),
+  };
+}
 }

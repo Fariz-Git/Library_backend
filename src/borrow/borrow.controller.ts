@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param , Query} from '@nestjs/common';
+import { Controller, Post, Body, Get, Param , Query, Search} from '@nestjs/common';
 import { BorrowService } from './borrow.service';
 
 @Controller('borrow')
@@ -20,7 +20,8 @@ export class BorrowController {
   findAll(
     @Query(`page`) page = 1,
     @Query(`limit`) limit = 10,
+    @Query(`search`) search = '',
   ) {
-    return this.borrowService.findAll(+page,+limit);
+    return this.borrowService.findAll(+page,+limit,search);
   }
 }

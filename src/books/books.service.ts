@@ -4,12 +4,13 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository , Like} from 'typeorm';
 import { Book } from './book.entity';
+
 
 @Injectable()
 export class BooksService {
-  constructor(
+  constructor(  
     @InjectRepository(Book)
     private bookRepo: Repository<Book>,
   ) {}
@@ -22,8 +23,7 @@ export class BooksService {
     data.availableQuantity = data.totalQuantity;
 
     const book = this.bookRepo.create(data);
-    // return await this.bookRepo.save(book);
-
+    
     try {
       const savedBook = await this.bookRepo.save (book);
       return {message : 'Book created successfully', book: savedBook};
@@ -33,17 +33,24 @@ export class BooksService {
 
   }   
   
+  async findAll(page: number, limit: number , search : string) {
+     const query =
+      this.bookRepo.createQueryBuilder('book');
 
-  async findAll(page: number, limit: number) {
-    const [data ,total] = await this.bookRepo.findAndCount({
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-
-    if (!data || data.length === 0) {
-      throw new NotFoundException('Book not found');
+    if (search && search.trim() !== '') {
+      query.where(
+        'LOWER(book.title) LIKE :search OR LOWER(book.author) LIKE :search',
+        { search: `%${search.toLowerCase()}%` },
+      );
     }
 
+    query
+      .skip((page - 1) * limit)
+      .take(limit)
+      .orderBy('book.id', 'ASC');
+
+    const [data, total] =
+      await query.getManyAndCount();
     return {
       data,
       total,
