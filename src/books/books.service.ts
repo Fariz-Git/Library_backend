@@ -3,8 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository , Like} from 'typeorm';
 import { Book } from './book.entity';
 
-
-
 @Injectable()
 export class BooksService {
   constructor(  
@@ -31,32 +29,16 @@ export class BooksService {
   }   
   
   async findAll(page: number, limit: number , search : string) {
-    //  const query =
-    //   this.bookRepo.createQueryBuilder('book');
-
-/*     if (search && search.trim() !== '') {
-      query.where(
-        'LOWER(book.title) LIKE :search OR LOWER(book.author) LIKE :search',
-        { search: `%${search.toLowerCase()}%` },
-      );
-    }
- */
-
-      const whereCondition = search
+    
+     const whereCondition = search
     ? [ 
         { title: Like(`%${search}%`) },
         { author : Like (`%${search}%`)},  
       ]
     : {};
 
-    // query
-    //   .skip((page - 1) * limit)
-    //   .take(limit)
-    //   .orderBy('book.id', 'ASC');
-
     const [data, total] = await this.bookRepo.findAndCount({
-     where :whereCondition ,
-      // await query.getManyAndCount();
+      where :whereCondition ,
       skip : (page - 1) * limit ,
       take: limit ,
       order :{id : 'ASC'},
