@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { StudentsModule } from './students/students.module';
 import { BooksModule } from './books/books.module';
 import { BorrowModule } from './borrow/borrow.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -22,10 +23,11 @@ import { BorrowModule } from './borrow/borrow.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       autoLoadEntities: true, // Automatically loads entities
-      synchronize: true, // Auto create tables (development only)
+      synchronize: true, // clAuto create tables (development only)
     }),
 
-    // Feature Modules
+    // // Feature Modules
+    AdminModule,
     StudentsModule,
     BooksModule,
     BorrowModule,
