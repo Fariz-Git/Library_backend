@@ -1,5 +1,5 @@
 import { Injectable , BadRequestException , NotFoundException } from "@nestjs/common";
-import { Repository } from "typeorm/browser";
+import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Admin }  from "./admin.entity";
 
