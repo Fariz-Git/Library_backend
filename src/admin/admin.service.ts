@@ -27,20 +27,28 @@ async login (username :string , password: string){
     const admin = await this.adminRepo.findOne ({
         where : {username : 'admin'}
     })
- if (!admin || admin.password !==password ){
+ if (!username || admin.password !==password ){
     throw new BadRequestException ("Invalid Cred");
  }
  return ("Login Sucessfully");
 }
 
-async updateCredentials(username:string ,password:string){
-     const admin = await this.adminRepo.findOne({ where: { id: 1 } });
+async updateAdmin(id: number, data: Partial<Admin>) {
+  const admin = await this.adminRepo.findOne({ where: { id } });
 
-    if (!admin) throw new NotFoundException('Admin not found');
-
-    admin.username = username;
-    admin.password = password;
-
-    return this.adminRepo.save(admin);
+  if (!admin) {
+    throw new NotFoundException('Admin not found');
   }
+
+  if (data.username) {
+    admin.username = data.username;
+  }
+
+  if (data.password) {
+    admin.password = data.password; // later we hash it
+  }
+
+  return this.adminRepo.save(admin);
+}
+  
 }
