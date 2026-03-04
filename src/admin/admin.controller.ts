@@ -1,4 +1,4 @@
-import { Controller ,Post , Body , Patch  ,Param} from "@nestjs/common";
+import { Controller ,Post , Body} from "@nestjs/common";
 import { AdminService } from "./admin.service";
 
 @Controller('admin')
@@ -11,11 +11,8 @@ export class AdminController{
             body.username , body.password);
     }
 
-@Patch('update/:id')
-update(
-  @Param('id') id: string,
-  @Body() body: any,
-) {
-  return this.adminService.updateAdmin(+id, body);
-}
+@Post('create')
+    create(@Body() body:any){
+        return this.adminService.createAdmin(body);
+    }
 }

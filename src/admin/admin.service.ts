@@ -22,33 +22,29 @@ async createDefaultAdmin(){
         await this.adminRepo.save(admin);
     }
 }
-
-async login (username :string , password: string){
-    const admin = await this.adminRepo.findOne ({
-        where : {username : 'admin'}
-    })
- if (!username || admin.password !==password ){
-    throw new BadRequestException ("Invalid Cred");
- }
- return ("Login Sucessfully");
+async createAdmin(data:Partial<Admin>){
+    const exsit = await this.adminRepo.findOne({
+        where : {username :data.username}
+    });
+    if (exsit){
+        throw new BadRequestException ("Username already Exits")
+    }
+    const newAdmin = this.adminRepo.create(data);
+    return this.adminRepo.save(newAdmin);
 }
 
-async updateAdmin(id: number, data: Partial<Admin>) {
-  const admin = await this.adminRepo.findOne({ where: { id } });
+async login(username: string, password: string) {
+  const admin = await this.adminRepo.findOne({
+    where: { username }
+  });
 
-  if (!admin) {
-    throw new NotFoundException('Admin not found');
+  if (!admin || admin.password !== password) {
+    throw new BadRequestException("Invalid Credentials");
   }
 
-  if (data.username) {
-    admin.username = data.username;
+  return {
+    message: "Login Successfully",
+    adminId: admin.id
   }
-
-  if (data.password) {
-    admin.password = data.password; // later we hash it
-  }
-
-  return this.adminRepo.save(admin);
-}
-  
+};
 }
