@@ -8,7 +8,7 @@ export class Student {
   @Column()
   name: string;
 
-  @Column()
+  @Column({unique:true})
   email: string;
 
   @Column()
