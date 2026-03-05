@@ -11,5 +11,8 @@ export class Admin{
 
     @Column()
     password : string ;
+
+    @Column({default:'admin'})
+     role : string ;
     
 }

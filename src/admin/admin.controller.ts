@@ -1,4 +1,4 @@
-import { Controller ,Post , Body} from "@nestjs/common";
+import { Controller ,Post , Body , Get ,Query ,Delete, Param ,Patch} from "@nestjs/common";
 import { AdminService } from "./admin.service";
 
 @Controller('admin')
@@ -13,6 +13,26 @@ export class AdminController{
 
 @Post('create')
     create(@Body() body:any){
-        return this.adminService.createAdmin(body);
+        return this.adminService.createAdmin(
+            body , body.currentAdminId);
     }
+@Get()
+getAll(@Query('adminId') adminId:number){
+  return this.adminService.findAll(adminId);
+}  
+
+@Delete(':id')
+delete(
+    @Param('id') id:number,
+    @Query('adminId') adminId:number
+){
+    return this.adminService.deleteAdmin(id,adminId)}
+
+@Patch('password/:id')
+  changePassword(
+  @Param('id') id:number,
+  @Body('password') password:string
+){
+  return this.adminService.changePassword(id,password);
+}   
 }
