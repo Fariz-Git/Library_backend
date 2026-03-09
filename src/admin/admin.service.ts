@@ -56,17 +56,22 @@ async createAdmin(data:Partial<Admin> , currentAdminId:number){
 async login(username: string, password: string) {
 
   const admin = await this.adminRepo.findOne({
-    where: { username }
+    where: {username},
   });
 
-  if (!admin || admin.password !== password) {
-    throw new BadRequestException("Invalid Credentials");
+  if (!admin) {
+    throw new BadRequestException("Invalid username");
+  }
+
+  // Prevent null password crash
+  if (!admin.password || admin.password !== password) {
+    throw new BadRequestException("Invalid password");
   }
 
   return {
     message: "Login Successfully",
     adminId: admin.id,
-    role: admin.role   // ✅ THIS IS IMPORTANT
+    role: admin.role,
   };
 }
 
